@@ -1,0 +1,54 @@
+.wp-plugin_note_box {
+	background: #EAF2FA;
+	border: 1px solid #21759B;
+	border-style: solid;
+	border-width: 1px;
+	margin-bottom: 5px;
+	padding: 3px 5px;
+}
+.wp-plugin_note_box_blank {
+	margin-bottom: 5px;
+	width: 300px;
+}
+	.wp-plugin_note {
+		display: block;
+		font-weight: bold;
+		margin-bottom: 5px;
+	}
+	.wp-plugin_note_user {
+		font-size:1em;
+		line-height:1.1em;
+	}
+	.wp-plugin_note_date {	
+		color:#666666;
+		font-size:0.85em;
+	}
+	.wp-plugin_note_actions {
+		font-size:0.85em;
+		display: block;
+	}
+		.wp-plugin_note_actions a.delete {
+			color: #BC0B0B;
+		}
+	.wp-plugin_note_edit_actions {
+		display: block;
+		margin: 5px 0 5px 0;
+	}
+	.wp-plugin_note_error {
+		display: block;
+		width: 350px;
+	}
+.plugins .inactive .wp-plugin_note_form a.button-primary {
+	color: #fff !important;
+}
+.plugins .inactive .wp-plugin_note_form a.button-primary:hover,
+.plugins .inactive .wp-plugin_note_form a.button-primary:active {
+	color: #EAF2FA !important;
+}
+.plugins .inactive .wp-plugin_note_form a.button {
+	color: #000 !important;
+}
+.plugins .inactive .wp-plugin_note_form a.button:hover,
+.plugins .inactive a.button:active {
+	color: #000 !important;
+}
