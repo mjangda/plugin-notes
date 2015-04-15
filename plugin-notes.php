@@ -39,10 +39,6 @@ class plugin_notes {
 	var $notes_option = 'plugin_notes';
 	var $nonce_added = false;
 	
-	function plugin_notes() {
-		$this->__construct();
-	}
-	
 	/**
 	 * Object constructor for plugin
 	 */
