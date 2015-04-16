@@ -1,10 +1,10 @@
 === Plugin Notes ===
-Contributors: batmoo
+Contributors: batmoo, cdillon27
 Donate link: http://digitalize.ca/donate
 Tags: plugin, plugin notes, memo, meta
-Tested up to: 3.0
-Requires at least: 2.8
-Stable tag: 1.1
+Tested up to: 4.1
+Requires at least: 3.5
+Stable tag: trunk
 
 Allows you to add notes to plugins.
 
@@ -12,9 +12,11 @@ Allows you to add notes to plugins.
 
 Allows you to add notes to plugins. Useful when you're using lots of plugins and/or make modifications to a plugin and want to make a note of them, and/or work on your WordPress install with a group of people. This plugin was inspired by a post by [Chris Coyier](http://digwp.com): (http://digwp.com/2009/10/ideas-for-plugins/)
 
-Note: the plugin requires PHP5+
-
 == Changelog ==
+
+= 2015-04-15 / 1.2
+* Fix strict warning: Redefining already defined constructor.
+* Version bump for WordPress 4.1.
 
 = 2010-10-15 / 1.1 =
 
@@ -43,3 +45,8 @@ Note: the plugin requires PHP5+
 == Screenshots ==
 1.  Easily add/edit/delete notes. Uses AJAX so your save at least a couple seconds which each note you add/edit/delete.
 2.  A bunch of notes added to plugins.
+
+== Upgrade Notice ==
+
+= 2015-04-15 - 1.2 =
+Fix strict warning: Redefining already defined constructor. Tested in WordPress 4.1.

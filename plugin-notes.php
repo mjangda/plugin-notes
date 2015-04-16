@@ -4,7 +4,7 @@ Plugin Name: Plugin Notes
 Plugin URI: http://wordpress.org/extend/plugins/plugin-notes/
 Description: Allows you to add notes to plugins. Simple and sweet.
 Author: Mohammad Jangda
-Version: 1.1
+Version: 1.2
 Author URI: http://digitalize.ca/
 
 Copyright 2009-2010 Mohammad Jangda
@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-define( 'PLUGIN_NOTES_VERSION', 1.1 );
+define( 'PLUGIN_NOTES_VERSION', 1.2 );
 
 // Localization, what?!
 $plugin_notes_plugin_dir = basename(dirname(__FILE__));
