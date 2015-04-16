@@ -14,7 +14,7 @@ Allows you to add notes to plugins. Useful when you're using lots of plugins and
 
 == Changelog ==
 
-= 2015-04-15 / 1.2
+= 2015-04-15 / 1.2 =
 * Fix strict warning: Redefining already defined constructor.
 * Version bump for WordPress 4.1.
 
