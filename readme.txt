@@ -2,7 +2,7 @@
 Contributors: batmoo, cdillon27
 Donate link: http://digitalize.ca/donate
 Tags: plugin, plugin notes, memo, meta
-Tested up to: 4.1
+Tested up to: 4.2
 Requires at least: 3.5
 Stable tag: trunk
 
