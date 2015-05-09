@@ -1,11 +1,15 @@
 <?php
 /*
 Plugin Name: Plugin Notes
-Plugin URI: http://wordpress.org/extend/plugins/plugin-notes/
+Plugin URI: http://wordpress.org/plugins/plugin-notes/
 Description: Allows you to add notes to plugins. Simple and sweet.
 Author: Mohammad Jangda
-Version: 1.2
+Version: 1.5
 Author URI: http://digitalize.ca/
+Contributor: Chris Dillon
+Contributor URI: http://gapcraft.com/
+Contributor: Juliette Reinders Folmer
+Contributor URI: http://adviesenzo.nl/
 Text Domain: plugin-notes
 Domain Path: /languages
 
@@ -70,6 +74,8 @@ if( !class_exists('plugin_notes')) {
 
 		/**
 		 * Object constructor for plugin
+		 *
+		 * Runs on the admin_init hook
 		 */
 		function __construct() {
 
@@ -271,6 +277,7 @@ if( !class_exists('plugin_notes')) {
 			return sanitize_title($name);
 		}
 
+
 		/**
 		 * Function that handles editing of the plugin via AJAX
 		 */
@@ -286,6 +293,7 @@ if( !class_exists('plugin_notes')) {
 			$current_user = wp_get_current_user();
 
 			if (current_user_can('activate_plugins')) {
+
 				// Get notes array
 				$notes = $this->_get_notes();
 				$note_text = $this->filter_kses( stripslashes( trim( $_POST['plugin_note'] ) ) );
