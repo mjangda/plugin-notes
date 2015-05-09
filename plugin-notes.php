@@ -47,6 +47,27 @@ if( !class_exists('plugin_notes')) {
 		var $notes_option = 'plugin_notes';
 		var $nonce_added = false;
 
+		var $allowed_tags = array(
+			'a' => array(
+				'href' => array(),
+				'title' => array(),
+				'target' => array(),
+			),
+			'br' => array(),
+			'p' => array(),
+			'b' => array(),
+			'strong' => array(),
+			'i' => array(),
+			'em' => array(),
+			'u' => array(),
+			'img' => array(
+				'src' => array(),
+				'height' => array(),
+				'width' => array(),
+			),
+			'hr' => array(),
+		);
+
 		/**
 		 * Object constructor for plugin
 		 */
@@ -59,12 +80,22 @@ if( !class_exists('plugin_notes')) {
 			// Add notes to plugin row
 			add_filter('plugin_row_meta', array($this, 'plugin_row_meta'), 10, 4);
 
+			// Add string replacement and markdown syntax filters to the note
+			add_filter('plugin_notes_note', array($this, 'filter_kses'), 10, 1);
+			add_filter('plugin_notes_note', array($this, 'filter_variables_replace'), 10, 3);
+			if( apply_filters( 'plugin_notes_markdown', true ) ) {
+				add_filter('plugin_notes_note', array($this, 'filter_markdown'), 10, 1);
+			}
+			add_filter('plugin_notes_note', array($this, 'filter_breaks'), 10, 1);
+
 			// Add js and css files
 			add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
 
 			// Add ajax action to edit posts
 			add_action('wp_ajax_plugin_notes_edit_comment', array($this, 'ajax_edit_plugin_note'));
 
+			// Allow filtering of the allowed html tags
+			$this->allowed_tags = apply_filters('plugin_notes_allowed_tags', $this->allowed_tags);
 		}
 
 		/**
@@ -117,39 +148,55 @@ if( !class_exists('plugin_notes')) {
 		/**
 		 * Outputs pluging note for the specified plugin
 		 */
-		function _add_plugin_note ( $note = null, $plugin_data, $plugin_file ) {
+		function _add_plugin_note ( $note = null, $plugin_data, $plugin_file, $echo = true ) {
+
 			$plugin_safe_name = $this->_get_plugin_safe_name($plugin_data['Name']);
 			$actions = array();
 
 			if(is_array($note) && !empty($note['note'])) {
 				$note_class = 'wp-plugin_note_box';
+
 				$note_text = $note['note'];
+				$filtered_note_text = apply_filters( 'plugin_notes_note', $note_text, $plugin_data, $plugin_file );
+
 				$note_author = get_userdata($note['user']);
 				$note_date = $note['date'];
-				$actions[] = '<a href="#" onclick="edit_plugin_note(\''. $plugin_safe_name .'\'); return false;" id="wp-plugin_note_edit" class="edit">'. __('Edit note', 'plugin-notes') .'</a>';
-				$actions[] = '<a href="#" onclick="delete_plugin_note(\''. $plugin_safe_name .'\'); return false;" id="wp-plugin_note_delete" class="delete">'. __('Delete note', 'plugin-notes') .'</a>';
+				$actions[] = '<a href="#" onclick="edit_plugin_note(\''. esc_js( $plugin_safe_name ) .'\'); return false;" id="wp-plugin_note_edit'. esc_attr( $plugin_safe_name ) .'" class="edit">'. __('Edit note', 'plugin-notes') .'</a>';
+				$actions[] = '<a href="#" onclick="delete_plugin_note(\''. esc_js( $plugin_safe_name ) .'\'); return false;" id="wp-plugin_note_delete'. esc_attr( $plugin_safe_name ) .'" class="delete">'. __('Delete note', 'plugin-notes') .'</a>';
 			} else {
 				$note_class = 'wp-plugin_note_box_blank';
-				$actions[] = '<a href="#" onclick="edit_plugin_note(\''. $plugin_safe_name .'\'); return false;">'. __('Add plugin note', 'plugin-notes') .'</a>';
-				$note_text = '';
+				$actions[] = '<a href="#" onclick="edit_plugin_note(\''. esc_js( $plugin_safe_name ) .'\'); return false;">'. __('Add plugin note', 'plugin-notes') .'</a>';
+				$filtered_note_text = $note_text = '';
 				$note_author = null;
 				$note_date = '';
 			}
-			?>
-			<div class="<?php echo $note_class ?>">
-				<?php $this->_add_plugin_form($note_text, $plugin_safe_name, $plugin_file, true); ?>
 
-				<div id="wp-plugin_note_<?php echo $plugin_safe_name ?>" ondblclick="edit_plugin_note('<?php echo $plugin_safe_name ?>');" title="Double click to edit me!">
-					<span class="wp-plugin_note"><?php echo nl2br( $note_text ); ?></span>
-					<span class="wp-plugin_note_user"><?php echo ( $note_author ) ? $note_author->display_name : ''; ?></span>
-					<span class="wp-plugin_note_date"><?php echo $note_date ?></span>
-					<span class="wp-plugin_note_actions">
-						<?php echo implode(' | ', $actions); ?>
-						<span class="waiting" style="display: none;"><img alt="<?php _e('Loading...', 'plugin-notes') ?>" src="images/wpspin_light.gif" /></span>
-					</span>
-				</div>
-			</div>
-			<?php
+			$output = '
+			<div id="wp-plugin_note_' . esc_attr( $plugin_safe_name ) . '" ondblclick="edit_plugin_note(\'' . esc_js( $plugin_safe_name ) . '\');" title="' . __('Double click to edit me!', 'plugin-notes') . '">
+				<span class="wp-plugin_note">' . $filtered_note_text . '</span>
+				<span class="wp-plugin_note_user">' . ( ( $note_author ) ? esc_html( $note_author->display_name ) : '' ) . '</span>
+				<span class="wp-plugin_note_date">' . esc_html( $note_date ) . '</span>
+				<span class="wp-plugin_note_actions">
+					' . implode(' | ', $actions) . '
+					<span class="waiting" style="display: none;"><img alt="' . __('Loading...', 'plugin-notes') . '" src="images/wpspin_light.gif" /></span>
+				</span>
+			</div>';
+
+			$output = apply_filters( 'plugin_notes_row', $output, $plugin_data, $plugin_file );
+
+			// Add the form to the note
+			$output = '
+			<div class="' . $note_class . '">
+				' . $this->_add_plugin_form($note_text, $plugin_safe_name, $plugin_file, true, false) .
+				$output . '
+			</div>';
+
+			if( $echo === true ) {
+				echo $output;
+			}
+			else {
+				return $output;
+			}
 		}
 
 		/**
@@ -213,7 +260,7 @@ if( !class_exists('plugin_notes')) {
 			if (current_user_can('activate_plugins')) {
 				// Get notes array
 				$notes = $this->_get_notes();
-				$note_text = trim(strip_tags( stripslashes( $_POST['plugin_note'] ), '<p><b><i><em><u><strong><a><img>'));
+				$note_text = $this->filter_kses( stripslashes( trim( $_POST['plugin_note'] ) ) );
 				// TODO: Escape this?
 				$plugin = $_POST['plugin_slug'];
 				$plugin_name = esc_html($_POST['plugin_name']);
@@ -280,10 +327,82 @@ if( !class_exists('plugin_notes')) {
 				return;
 			}
 
-
-
-
 		}
+
+
+		/**
+		 * Applies the wp_kses html filter to the note string
+		 *
+		 * @param		string	$pluginnote
+		 * @return		string	altered string $pluginnote
+		 */
+		function filter_kses( $pluginnote ) {
+			return wp_kses( $pluginnote, $this->allowed_tags );
+		}
+
+
+		/**
+		 * Adds additional line breaks to the note string
+		 *
+		 * @param		string	$pluginnote
+		 * @return		string	altered string $pluginnote
+		 */
+		function filter_breaks( $pluginnote) {
+			return wpautop( $pluginnote );
+		}
+
+
+		/**
+		 * Applies markdown syntax filter to the note string
+		 *
+		 * @param		string	$pluginnote
+		 * @return		string	altered string $pluginnote
+		 */
+		function filter_markdown( $pluginnote ) {
+			include_once( dirname(__FILE__) . '/inc/markdown/markdown.php' );
+
+			return Markdown( $pluginnote );
+		}
+
+
+		/**
+		 * Replaces a number of variables in the note string
+		 *
+		 * @param		string	$pluginnote
+		 * @return		string	altered string $pluginnote
+		 */
+		function filter_variables_replace( $pluginnote, $plugin_data, $plugin_file ) {
+
+			if( !isset($plugin_data ) || count( $plugin_data ) === 1 ) {
+				$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin_file, false, $translate = true );
+			}
+
+			$find = array(
+				'%NAME%',
+				'%PLUGIN_PATH%',
+				'%URI%',
+				'%WPURI%',
+				'%WPURI_LINK%',
+				'%AUTHOR%',
+				'%AUTHORURI%',
+				'%VERSION%',
+				'%DESCRIPTION%',
+			);
+			$replace = array(
+				esc_html($plugin_data['Name']),
+				esc_html( plugins_url() . '/' . plugin_dir_path( $plugin_file ) ),
+				( isset( $plugin_data['PluginURI'] ) ? esc_url( $plugin_data['PluginURI'] ) : '' ),
+				esc_url( 'http://wordpress.org/plugins/' . substr( $plugin_file, 0, strpos( $plugin_file, '/') ) ),
+				'<a href="' . esc_url( 'http://wordpress.org/plugins/' . substr( $plugin_file, 0, strpos( $plugin_file, '/') ) ) . '" target="_blank">' . esc_html($plugin_data['Name']) . '</a>',
+				( isset($plugin_data['Author'] ) ? esc_html( $plugin_data['Author'] ) : '' ),
+				( isset($plugin_data['AuthorURI'] ) ? esc_html( $plugin_data['AuthorURI'] ) : '' ),
+				( isset($plugin_data['Version'] ) ? esc_html( $plugin_data['Version'] ) : '' ),
+				( isset($plugin_data['Description'] ) ? esc_html( $plugin_data['Description'] ) : '' ),
+			);
+
+			return str_replace( $find, $replace, $pluginnote );
+		}
+
 
 		/* Some sweet function to get/set go!*/
 		function _get_notes() { return get_option($this->notes_option);	}

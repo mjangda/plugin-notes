@@ -8,11 +8,10 @@
 }
 .wp-plugin_note_box_blank {
 	margin-bottom: 5px;
-	width: 300px;
+	width: 500px;
 }
 	.wp-plugin_note {
 		display: block;
-		font-weight: bold;
 		margin-bottom: 5px;
 	}
 	.wp-plugin_note_user {
