@@ -57,13 +57,13 @@ if( !class_exists('plugin_notes')) {
 			$this->notes = $this->_get_notes();
 
 			// Add notes to plugin row
-			add_filter('plugin_row_meta', array(&$this, 'plugin_row_meta'), 10, 4);
+			add_filter('plugin_row_meta', array($this, 'plugin_row_meta'), 10, 4);
 
 			// Add js and css files
-			add_action('admin_enqueue_scripts', array(&$this, 'enqueue_scripts'));
+			add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
 
 			// Add ajax action to edit posts
-			add_action('wp_ajax_plugin_notes_edit_comment', array(&$this, 'ajax_edit_plugin_note' ));
+			add_action('wp_ajax_plugin_notes_edit_comment', array($this, 'ajax_edit_plugin_note'));
 
 		}
 
@@ -291,13 +291,13 @@ if( !class_exists('plugin_notes')) {
 
 	} /* End of class */
 
+
 	add_action( 'admin_init', 'plugin_notes_init' );
 
 	function plugin_notes_init() {
 		/** Let's get the plugin rolling **/
 		// Create new instance of the plugin_notes object
-		global $plugin_notes;
-		$plugin_notes = new plugin_notes();
+		$GLOBALS['plugin_notes'] = new plugin_notes();
 	}
 
 } /* End of class-exists wrapper */
