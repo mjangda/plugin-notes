@@ -4,7 +4,7 @@ Plugin Name: Plugin Notes
 Plugin URI: http://wordpress.org/plugins/plugin-notes/
 Description: Allows you to add notes to plugins. Simple and sweet.
 Author: Mohammad Jangda
-Version: 1.5
+Version: 1.6
 Author URI: http://digitalize.ca/
 Contributor: Chris Dillon
 Contributor URI: http://gapcraft.com/
@@ -45,7 +45,7 @@ if( !class_exists('plugin_notes')) {
 
 	class plugin_notes {
 
-		const VERSION = 1.5;
+		const VERSION = 1.6;
 
 		var $notes = array();
 		var $notes_option = 'plugin_notes';
@@ -71,6 +71,20 @@ if( !class_exists('plugin_notes')) {
 			),
 			'hr' => array(),
 		);
+
+		var $boxcolors = array(
+			'#EBF9E6', // light green
+			'#F0F8E2', // lighter green
+			'#F9F7E6', // light yellow
+			'#EAF2FA', // light blue
+			'#E6F9F9', // brighter blue
+			'#F9E8E6', // light red
+			'#F9E6F4', // light pink
+			'#F9F0E6', // earth
+			'#E9E2F8', // light purple
+			'#D7DADD', // light grey
+		);
+		var $defaultcolor	= '#EAF2FA';
 
 		/**
 		 * Object constructor for plugin
@@ -195,6 +209,9 @@ if( !class_exists('plugin_notes')) {
 
 				$note_author = get_userdata($note['user']);
 				$note_date = $note['date'];
+
+				$note_color = ( ( isset( $note['color'] ) && $note['color'] !== '' ) ? $note['color'] : $this->defaultcolor );
+
 				$actions[] = '<a href="#" onclick="edit_plugin_note(\''. esc_js( $plugin_safe_name ) .'\'); return false;" id="wp-plugin_note_edit'. esc_attr( $plugin_safe_name ) .'" class="edit">'. __('Edit note', 'plugin-notes') .'</a>';
 				$actions[] = '<a href="#" onclick="delete_plugin_note(\''. esc_js( $plugin_safe_name ) .'\'); return false;" id="wp-plugin_note_delete'. esc_attr( $plugin_safe_name ) .'" class="delete">'. __('Delete note', 'plugin-notes') .'</a>';
 			} else {
@@ -203,7 +220,10 @@ if( !class_exists('plugin_notes')) {
 				$filtered_note_text = $note_text = '';
 				$note_author = null;
 				$note_date = '';
+				$note_color = $this->defaultcolor;
 			}
+
+			$note_color_style = ( ( $note_color !== $this->defaultcolor ) ? ' style="background-color: ' . $note_color . ';"' : '' );
 
 			$output = '
 			<div id="wp-plugin_note_' . esc_attr( $plugin_safe_name ) . '" ondblclick="edit_plugin_note(\'' . esc_js( $plugin_safe_name ) . '\');" title="' . __('Double click to edit me!', 'plugin-notes') . '">
@@ -220,8 +240,8 @@ if( !class_exists('plugin_notes')) {
 
 			// Add the form to the note
 			$output = '
-			<div class="' . $note_class . '">
-				' . $this->_add_plugin_form($note_text, $plugin_safe_name, $plugin_file, true, false) .
+			<div class="' . $note_class . '"' . $note_color_style . '>
+				' . $this->_add_plugin_form($note_text, $note_color, $plugin_safe_name, $plugin_file, true, false) .
 				$output . '
 			</div>';
 
@@ -236,7 +256,7 @@ if( !class_exists('plugin_notes')) {
 		/**
 		 * Outputs form to add/edit/delete a plugin note
 		 */
-		function _add_plugin_form ( $note = '', $plugin_safe_name, $plugin_file, $hidden = true, $echo = true ) {
+		function _add_plugin_form ( $note = '', $note_color, $plugin_safe_name, $plugin_file, $hidden = true, $echo = true ) {
 			$plugin_form_style = ($hidden) ? 'style="display:none"' : '';
 
 			$new_note_class = '';
@@ -247,6 +267,20 @@ if( !class_exists('plugin_notes')) {
 
 			$output = '
 			<div id="wp-plugin_note_form_' . esc_attr( $plugin_safe_name ) . '" class="wp-plugin_note_form" ' . $plugin_form_style . '>
+				 <label for="wp-plugin_note_color_' . esc_attr( $plugin_safe_name ) . '">' . __( 'Note color:', 'plugin-notes') . '
+				 <select name="wp-plugin_note_color_' . esc_attr( $plugin_safe_name ) . '" id="wp-plugin_note_color_' . esc_attr( $plugin_safe_name ) . '">
+			';
+
+			// Add color options
+			foreach( $this->boxcolors as $color ){
+				$output .= '
+					<option value="' . $color . '" style="background-color: ' . $color . '; color: ' . $color . ';"' .
+					( ( $color === $note_color ) ? ' selected="selected"' : '' ) .
+					'>' . $color . '</option>';
+			}
+
+			$output .= '
+				</select></label>
 				<textarea name="wp-plugin_note_text_' . esc_attr( $plugin_safe_name ) . '" cols="90" rows="10"' . $new_note_class . '>' . esc_textarea( $note ) . '</textarea>
 				<span class="wp-plugin_note_error error" style="display: none;"></span>
 				<span class="wp-plugin_note_success success" style="display: none;"></span>
@@ -297,6 +331,7 @@ if( !class_exists('plugin_notes')) {
 				// Get notes array
 				$notes = $this->_get_notes();
 				$note_text = $this->filter_kses( stripslashes( trim( $_POST['plugin_note'] ) ) );
+				$note_color = ( isset( $_POST['plugin_note_color'] ) && in_array( $_POST['plugin_note_color'], $this->boxcolors ) ? $_POST['plugin_note_color'] : $this->defaultcolor );
 				// TODO: Escape this?
 				$plugin = $_POST['plugin_slug'];
 				$plugin_name = esc_html($_POST['plugin_name']);
@@ -326,6 +361,7 @@ if( !class_exists('plugin_notes')) {
 						$note['date'] = date($date_format);
 						$note['user'] = $current_user->ID;
 						$note['note'] = $note_text;
+						$note['color'] = $note_color;
 
 						// Add new note to notes array
 						$notes[$plugin] = $note;
