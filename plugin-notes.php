@@ -35,13 +35,13 @@ if ( !function_exists('add_action')) {
 }
 
 if( !class_exists('plugin_notes')) {
-	define( 'PLUGIN_NOTES_VERSION', 1.2 );
-
 	// Localization, what?!
 	$plugin_notes_plugin_dir = basename(dirname(__FILE__));
 	load_plugin_textdomain( 'plugin_notes','wp-content/plugins/'.$plugin_notes_plugin_dir, $plugin_notes_plugin_dir);
 
 	class plugin_notes {
+
+		const VERSION = 1.5;
 
 		var $notes = array();
 		var $notes_option = 'plugin_notes';
@@ -72,8 +72,6 @@ if( !class_exists('plugin_notes')) {
 			global $pagenow;
 
 			if($pagenow == "plugins.php") {
-				wp_enqueue_script('plugin-notes', plugins_url('plugin-notes/plugin-notes.js'), array('jquery', 'wp-ajax-response'), PLUGIN_NOTES_VERSION, true);
-				wp_enqueue_style('plugin-notes', plugins_url('plugin-notes/plugin-notes.css'), false, PLUGIN_NOTES_VERSION, 'all');
 				?>
 				<script type="text/javascript">
 				if(!i18n || i18n == 'undefined') var i18n = {};
@@ -81,6 +79,8 @@ if( !class_exists('plugin_notes')) {
 				i18n.plugin_notes.confirm_delete = "<?php _e('Are you sure you want to delete this note?', 'plugin_notes'); ?>";
 				</script>
 				<?php
+				wp_enqueue_script('plugin-notes', plugins_url('plugin-notes.js', __FILE__), array('jquery', 'wp-ajax-response'), self::VERSION, true);
+				wp_enqueue_style('plugin-notes', plugins_url('plugin-notes.css', __FILE__), false, self::VERSION, 'all');
 			}
 		}
 
