@@ -95,6 +95,8 @@ if( !class_exists('plugin_notes')) {
 		function localize_script() {
 			return array(
 				'confirm_delete' => esc_js(__('Are you sure you want to delete this note?', 'plugin-notes')),
+				'confirm_new_template' => esc_js(__('Are you sure you want to save this note as a template?\n\rAny changes you made will not be saved to this particular plugin note.\n\r\n\rAlso beware: saving this note as the plugin notes template will overwrite any previously saved templates!', 'plugin-notes')),
+				'success_save_template' => esc_js(__('New notes template saved succesfully', 'plugin-notes' )),
 			);
 		}
 		/**
@@ -153,22 +155,40 @@ if( !class_exists('plugin_notes')) {
 		/**
 		 * Outputs form to add/edit/delete a plugin note
 		 */
-		function _add_plugin_form ( $note = '', $plugin_safe_name, $plugin_file, $hidden = true ) {
+		function _add_plugin_form ( $note = '', $plugin_safe_name, $plugin_file, $hidden = true, $echo = true ) {
 			$plugin_form_style = ($hidden) ? 'style="display:none"' : '';
-			?>
-				<div id="wp-plugin_note_form_<?php echo $plugin_safe_name ?>" class="wp-plugin_note_form" <?php echo $plugin_form_style ?>>
-					<textarea name="wp-plugin_note_text_<?php echo $plugin_safe_name ?>" cols="40" rows="3"><?php echo $note; ?></textarea>
-					<span class="wp-plugin_note_error error" style="display: none;"></span>
-					<span class="wp-plugin_note_edit_actions">
-						<?php // TODO: Unobtrusify the javascript ?>
-						<a href="#" onclick="save_plugin_note('<?php echo $plugin_safe_name ?>');return false;" class="button-primary"><?php _e('Save', 'plugin-notes') ?></a>
-						<a href="#" onclick="cancel_plugin_note('<?php echo $plugin_safe_name ?>');return false;" class="button"><?php _e('Cancel', 'plugin-notes') ?></a>
-						<span class="waiting" style="display: none;"><img alt="<?php _e('Loading...', 'plugin-notes') ?>" src="images/wpspin_light.gif" /></span>
-					</span>
-					<input type="hidden" name="wp-plugin_note_slug_<?php echo $plugin_safe_name ?>" value="<?php echo $plugin_file ?>" />
-				</div>
-			<?php
+
+			$new_note_class = '';
+			if( $note === '' ) {
+				$note = ( isset( $this->notes['plugin-notes_template'] ) ? $this->notes['plugin-notes_template'] : '' );
+				$new_note_class = ' class="new_note"';
+			}
+
+			$output = '
+			<div id="wp-plugin_note_form_' . esc_attr( $plugin_safe_name ) . '" class="wp-plugin_note_form" ' . $plugin_form_style . '>
+				<textarea name="wp-plugin_note_text_' . esc_attr( $plugin_safe_name ) . '" cols="90" rows="10"' . $new_note_class . '>' . esc_textarea( $note ) . '</textarea>
+				<span class="wp-plugin_note_error error" style="display: none;"></span>
+				<span class="wp-plugin_note_success success" style="display: none;"></span>
+				<span class="wp-plugin_note_edit_actions">
+'.					// TODO: Unobtrusify the javascript
+'					<a href="#" onclick="save_plugin_note(\'' . esc_js( $plugin_safe_name ) . '\');return false;" class="button-primary">' . __('Save', 'plugin-notes') . '</a>
+					<a href="#" onclick="cancel_plugin_note(\'' . esc_js( $plugin_safe_name ) . '\');return false;" class="button">' . __('Cancel', 'plugin-notes') . '</a>
+					<a href="#" onclick="templatesave_plugin_note(\'' . esc_js( $plugin_safe_name ) . '\');return false;" class="button-secondary">' . __('Save as template for new notes', 'plugin-notes') . '</a>
+					<span class="waiting" style="display: none;"><img alt="' . __('Loading...', 'plugin-notes') . '" src="images/wpspin_light.gif" /></span>
+				</span>
+				<input type="hidden" name="wp-plugin_note_slug_' . esc_attr( $plugin_safe_name ) . '" value="' . esc_attr( $plugin_file ) . '" />
+				<input type="hidden" name="wp-plugin_note_new_template_' . esc_attr( $plugin_safe_name ) . '" id="wp-plugin_note_new_template_' . esc_attr( $plugin_safe_name ) . '" value="n" />
+			</div>';
+
+			if( $echo === true ) {
+				echo apply_filters( 'plugin_notes_form', $output, $plugin_safe_name );
+			}
+			else {
+				return apply_filters( 'plugin_notes_form', $output, $plugin_safe_name );
+			}
 		}
+
+
 		/**
 		 * Returns a cleaned up version of the plugin name, i.e. it's slug
 		 */
@@ -201,28 +221,58 @@ if( !class_exists('plugin_notes')) {
 				$response_data = array();
 				$response_data['slug'] = $plugin;
 
+					$note = array();
+
 				if($note_text) {
 
-					$date_format = get_option('date_format');
+					// Are we trying to save the note as a note template ?
+					if( $_POST['plugin_new_template'] === 'y' ) {
 
-					// setup the note data
-					$note = array();
-					$note['date'] = date($date_format);
-					$note['user'] = $current_user->ID;
-					$note['note'] = $note_text;
+						$notes['plugin-notes_template'] = $note_text;
 
-					// Add new note to notes array
-					$notes[$plugin] = $note;
+						$response_data = array_merge($response_data, $note);
+						$response_data['action'] = 'save_template';
+					}
 
-					$response_data = array_merge($response_data, $note);
-					$response_data['action'] = 'edit';
+					// Ok, no template, save the note to the specific plugin
+					else {
+
+						$date_format = get_option('date_format');
+
+						// setup the note data
+						$note['date'] = date($date_format);
+						$note['user'] = $current_user->ID;
+						$note['note'] = $note_text;
+
+						// Add new note to notes array
+						$notes[$plugin] = $note;
+
+						$response_data = array_merge($response_data, $note);
+						$response_data['action'] = 'edit';
+					}
+
 				} else {
 					// no note sent, so let's delete it
 					if(!empty($notes[$plugin])) unset($notes[$plugin]);
 					$response_data['action'] = 'delete';
 				}
+
 				// Save the new notes array
 				$this->_set_notes($notes);
+
+				// Prepare response
+				$response = new WP_Ajax_Response();
+
+				$plugin_note_content = $this->_add_plugin_note($note, array('Name' => $plugin_name), $plugin, false);
+				$response->add( array(
+					'what' => 'plugin_note',
+					'id' => $plugin,
+					'data' => $plugin_note_content,
+					'action' => ( ($note_text) ? ( ( $_POST['plugin_new_template'] === 'y' ) ? 'save_template' : 'edit' ) : 'delete' ),
+				));
+				$response->send();
+
+				return;
 
 			} else {
 				// user can't edit plugins, so throw error
@@ -230,23 +280,9 @@ if( !class_exists('plugin_notes')) {
 				return;
 			}
 
-			// Prepare response
-			$response = new WP_Ajax_Response();
 
-			ob_start();
-				$this->_add_plugin_note($note, array('Name' => $plugin_name), $plugin);
-				$plugin_note_content = ob_get_contents();
-			ob_end_clean();
 
-			$response->add( array(
-				'what' => 'plugin_note',
-				'id' => $plugin,
-				'data' => $plugin_note_content,
-				'action' => ($note_text) ? 'edit' : 'delete',
-			));
-			$response->send();
 
-			return;
 		}
 
 		/* Some sweet function to get/set go!*/

@@ -36,6 +36,12 @@
 	}
 	.wp-plugin_note_error {
 		display: block;
+		color: #FF0000;
+		width: 350px;
+	}
+	.wp-plugin_note_success {
+		display: block;
+		color: #006600;
 		width: 350px;
 	}
 .plugins .inactive .wp-plugin_note_form a.button-primary {
