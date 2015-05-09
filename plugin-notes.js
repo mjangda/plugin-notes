@@ -14,7 +14,7 @@ function add_plugin_note( plugin_slug, plugin_name ) {
 function edit_plugin_note( plugin_name ) {
 	var note_elements = get_plugin_note_elements(plugin_name);
 
-	// Hide note, show form and focus on textaread
+	// Hide note, show form and focus on textarea
 	note_elements.box.hide('normal');
 	note_elements.form.show('normal');
 	note_elements.form.input.focus();

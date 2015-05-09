@@ -110,11 +110,12 @@ if( !class_exists('plugin_notes')) {
 		 * Adds necessary javascript and css files
 		 */
 		function enqueue_scripts() {
-			global $pagenow;
 
-			if($pagenow == "plugins.php") {
-				wp_enqueue_script('plugin-notes', plugins_url('plugin-notes.js', __FILE__), array('jquery', 'wp-ajax-response'), self::VERSION, true);
-				wp_enqueue_style('plugin-notes', plugins_url('plugin-notes.css', __FILE__), false, self::VERSION, 'all');
+			if($GLOBALS['pagenow'] === 'plugins.php') {
+				$suffix = ( ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min' );
+
+				wp_enqueue_script('plugin-notes', plugins_url('plugin-notes'.$suffix.'.js', __FILE__), array('jquery', 'wp-ajax-response'), self::VERSION, true);
+				wp_enqueue_style('plugin-notes', plugins_url('plugin-notes'.$suffix.'.css', __FILE__), false, self::VERSION, 'all');
 				wp_localize_script( 'plugin-notes', 'i18n_plugin_notes', $this->localize_script() );
 			}
 		}
