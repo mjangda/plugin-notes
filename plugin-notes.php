@@ -91,6 +91,9 @@ if( !class_exists('plugin_notes')) {
 			// Add js and css files
 			add_action('admin_enqueue_scripts', array($this, 'enqueue_scripts'));
 
+			// Add helptab
+			add_action('admin_head-plugins.php', array($this, 'add_help_tab'));
+
 			// Add ajax action to edit posts
 			add_action('wp_ajax_plugin_notes_edit_comment', array($this, 'ajax_edit_plugin_note'));
 
@@ -131,6 +134,30 @@ if( !class_exists('plugin_notes')) {
 				'success_save_template' => esc_js(__('New notes template saved succesfully', 'plugin-notes' )),
 			);
 		}
+
+		/**
+		 * Adds contextual help tab to the plugin page
+		 */
+		function add_help_tab() {
+
+			$screen = get_current_screen();
+
+			if( method_exists( $screen, 'add_help_tab' ) === true ) {
+				$screen->add_help_tab( array(
+					'id'      => 'plugin-notes-help', // This should be unique for the screen.
+					'title'   => 'Plugin Notes',
+					'content' => '
+						<p>' . sprintf( __( 'The <em><a href="%s">Plugin Notes</a></em> plugin let\'s you add notes for each installed plugin. This can be useful for documenting changes you made or how and where you use a plugin in your website.', 'plugin-notes' ), 'http://wordpress.org/plugins/plugin-notes/" target="_blank" class="ext-link') . '</p>
+						<p>' . sprintf( __( 'You can use <a href="%s">Markdown syntax</a> in your notes as well as HTML.', 'plugin-notes' ), 'http://daringfireball.net/projects/markdown/syntax" target="_blank" class="ext-link' ) . '</p>
+						<p>' . sprintf( __( 'On top of that, you can even use a <a href="%s">number of variables</a> which will automagically be replaced, such as for example <em>%%WPURI_LINK%%</em> which would be replaced by a link to the WordPress plugin repository for this plugin. Neat isn\'t it ?', 'plugin-notes' ), 'http://wordpress.org/plugins/plugin-notes/faq/" target="_blank" class="ext-link' ) . '</p>
+						<p>' . sprintf( __( 'Lastly, you can save a note as a template for new notes. If you use a fixed format for your plugin notes, you will probably like the efficiency of this.', 'plugin-notes' ), '' ) . '</p>
+						<p>' . sprintf( __( 'For more information: <a href="%1$s">Plugin home</a> | <a href="%2$s">FAQ</a>', 'plugin-notes' ), 'http://wordpress.org/plugins/plugin-notes/" target="_blank" class="ext-link', 'http://wordpress.org/extend/plugins/plugin-notes/faq/" target="_blank" class="ext-link' ) . '</p>',
+					// Use 'callback' instead of 'content' for a function callback that renders the tab content.
+					)
+				);
+			}
+		}
+
 		/**
 		 * Adds a nonce to the plugin page so we don't get nasty people doing nasty things
 		 */
