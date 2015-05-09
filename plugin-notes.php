@@ -6,6 +6,9 @@ Description: Allows you to add notes to plugins. Simple and sweet.
 Author: Mohammad Jangda
 Version: 1.2
 Author URI: http://digitalize.ca/
+Text Domain: plugin-notes
+Domain Path: /languages
+
 
 Copyright 2009-2010 Mohammad Jangda
 
@@ -35,9 +38,6 @@ if ( !function_exists('add_action')) {
 }
 
 if( !class_exists('plugin_notes')) {
-	// Localization, what?!
-	$plugin_notes_plugin_dir = basename(dirname(__FILE__));
-	load_plugin_textdomain( 'plugin_notes','wp-content/plugins/'.$plugin_notes_plugin_dir, $plugin_notes_plugin_dir);
 
 	class plugin_notes {
 
@@ -51,6 +51,8 @@ if( !class_exists('plugin_notes')) {
 		 * Object constructor for plugin
 		 */
 		function __construct() {
+
+			$this->load_textdomain();
 
 			$this->notes = $this->_get_notes();
 
@@ -66,24 +68,35 @@ if( !class_exists('plugin_notes')) {
 		}
 
 		/**
+		 * Localization, what?!
+		 */
+		function load_textdomain() {
+			load_plugin_textdomain( 'plugin-notes', false, plugin_dir_path(__FILE__) . 'languages/' );
+		}
+
+
+		/**
 		 * Adds necessary javascript and css files
 		 */
 		function enqueue_scripts() {
 			global $pagenow;
 
 			if($pagenow == "plugins.php") {
-				?>
-				<script type="text/javascript">
-				if(!i18n || i18n == 'undefined') var i18n = {};
-				i18n.plugin_notes = {};
-				i18n.plugin_notes.confirm_delete = "<?php _e('Are you sure you want to delete this note?', 'plugin_notes'); ?>";
-				</script>
-				<?php
 				wp_enqueue_script('plugin-notes', plugins_url('plugin-notes.js', __FILE__), array('jquery', 'wp-ajax-response'), self::VERSION, true);
 				wp_enqueue_style('plugin-notes', plugins_url('plugin-notes.css', __FILE__), false, self::VERSION, 'all');
+				wp_localize_script( 'plugin-notes', 'i18n_plugin_notes', $this->localize_script() );
 			}
 		}
 
+
+		/**
+		 * Localize text strings for use in javascript
+		 */
+		function localize_script() {
+			return array(
+				'confirm_delete' => esc_js(__('Are you sure you want to delete this note?', 'plugin-notes')),
+			);
+		}
 		/**
 		 * Adds a nonce to the plugin page so we don't get nasty people doing nasty things
 		 */
@@ -171,7 +184,7 @@ if( !class_exists('plugin_notes')) {
 
 			// Verify nonce
 			if ( ! wp_verify_nonce( $_POST['_nonce'], 'wp-plugin_notes_nonce')) {
-				die( __( 'Don\'t think you\'re supposed to be here...', 'plugin_notes' ) );
+				die( __( 'Don\'t think you\'re supposed to be here...', 'plugin-notes' ) );
 				return;
 			}
 
@@ -213,7 +226,7 @@ if( !class_exists('plugin_notes')) {
 
 			} else {
 				// user can't edit plugins, so throw error
-				die( __( 'Sorry, you do not have permission to edit plugins.', 'plugin_notes' ) );
+				die( __( 'Sorry, you do not have permission to edit plugins.', 'plugin-notes' ) );
 				return;
 			}
 
