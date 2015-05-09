@@ -58,3 +58,20 @@
 .plugins .inactive a.button:active {
 	color: #000 !important;
 }
+
+.wp-plugin_note_box a[target="_blank"],
+.wp-plugin_note_box a[target="_blank"]:link,
+a.ext-link, a.ext-link:link {
+	background: url("images/external.png") no-repeat 100% 0;
+	padding-right: 13px;
+}
+.wp-plugin_note_box a[target="_blank"]:visited,
+a.ext-link:visited, a.ext-link:visited {
+	background: url("images/external.png") no-repeat 100% -100px;
+	padding-right: 13px;
+}
+.wp-plugin_note_box a[target="_blank"]:active,
+a.ext-link:hover, a.ext-link:active {
+	background: url("images/external.png") no-repeat 100% -200px;
+	padding-right: 13px;
+}

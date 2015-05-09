@@ -1,3 +1,12 @@
+/**
+ * Automagically make all links in plugin notes have target="_blank"
+ */
+jQuery(document).ready(function($) {
+	jQuery('span.wp-plugin_note a').each(function(){
+		jQuery(this).attr( 'target', '_blank' );
+	});
+});
+
 function add_plugin_note( plugin_slug, plugin_name ) {
 	edit_plugin_note(plugin_slug, plugin_name);
 }
