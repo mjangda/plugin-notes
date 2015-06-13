@@ -50,6 +50,7 @@ function save_plugin_note( plugin_name ) {
 	// Get form values
 	var _nonce = jQuery('input[name=wp-plugin_notes_nonce]').val();
 	var plugin_slug = jQuery('input[name=wp-plugin_note_slug_'+plugin_name+']').val();
+	var plugin_note_color = jQuery('#wp-plugin_note_color_'+plugin_name).val();
 	var plugin_new_template = jQuery('input[name=wp-plugin_note_new_template_'+plugin_name+']').val();
 	var plugin_note = note_elements.form.input.val();
 	
@@ -62,6 +63,7 @@ function save_plugin_note( plugin_name ) {
 	post.plugin_name = plugin_name;
 	post.plugin_note = plugin_note;
 	post.plugin_slug = plugin_slug;
+	post.plugin_note_color = plugin_note_color;
 	post.plugin_new_template = plugin_new_template;
 	post._nonce = _nonce;
 
@@ -105,9 +107,9 @@ function plugin_note_saved ( xml, note_elements ) {
 	 * Update the plugin note after edit/delete action
 	 */
 	if(response.action.indexOf('save_template') == -1 ) {
-	note_elements.box.parent().after(response.data);
-	note_elements.box.parent().remove();
-	note_elements.form.hide('normal');	
+		note_elements.box.parent().after(response.data);
+		note_elements.box.parent().remove();
+		note_elements.form.hide('normal');
 		
 		jQuery('#wp-plugin_note_'+note_elements.name+' span.wp-plugin_note a').each(function(){
 			jQuery(this).attr( 'target', '_blank' );
