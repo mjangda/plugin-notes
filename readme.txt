@@ -4,7 +4,7 @@ Donate link: http://digitalize.ca/donate
 Tags: plugin, plugin notes, memo, meta, plugins
 Tested up to: 4.2
 Requires at least: 3.5
-Stable tag: trunk
+Stable tag: 1.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
