@@ -36,6 +36,8 @@ Please have a look at the [FAQ](http://wordpress.org/plugins/plugin-notes/faq/) 
 
 **External link indicator**: liberally nicked from the [Better WP External Links](http://wordpress.org/plugins/bwp-external-links/) plugin
 
+**Banner and icon image**: [earl53](http://morguefile.com/archive/display/83611)
+
 
 = Translations =
 Dutch - [jrf](http://wordpress.org/support/profile/jrf)
