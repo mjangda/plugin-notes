@@ -146,11 +146,11 @@ The plugin is translation ready, though there is not much to translate. Use the 
 
 == Changelog ==
 
-= 2015-05-xx / 1.6 Originally released Dec 2012 by jrf =
+= 2015-06-13 / 1.6 Originally released Dec 2012 by jrf =
 * [_New feature_] Added ability to change the background color of notes.
 
 
-= 2015-05-xx / 1.5 Originally released Dec 2012 by jrf =
+= 2015-06-09 / 1.5 Originally released Dec 2012 by jrf =
 
 * [_Bug fix_] Fixed AJAX delete bug (kept 'waiting').
 * [_New feature_] Added output filters for html output (`plugin_notes_row` and `plugin_notes_form`) and the note itself (`plugin_notes_note`).
