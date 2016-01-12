@@ -91,6 +91,13 @@ if( !class_exists('plugin_notes')) {
 		 */
 		function __construct() {
 
+			/*
+			 * @todo:
+			 * - only load textdomain when on the plugins page - lean loading
+			 * - check that all translations with a %s placeholder have a translators comment
+			 * - check if any translations need context
+			 * - check that all text strings are translatable & have a text domain.
+			 */
 			$this->load_textdomain();
 
 			$this->notes = $this->_get_notes();
@@ -123,7 +130,7 @@ if( !class_exists('plugin_notes')) {
 		 * Localization, what?!
 		 */
 		function load_textdomain() {
-			load_plugin_textdomain( 'plugin-notes', false, plugin_dir_path(__FILE__) . 'languages/' );
+			load_plugin_textdomain( 'plugin-notes', false, plugin_dir_path(__FILE__) . 'languages' );
 		}
 
 
