@@ -1,5 +1,5 @@
 === Plugin Notes ===
-Contributors: batmoo, cdillon27, jrf
+Contributors: batmoo, jrf
 Donate link: http://digitalize.ca/donate
 Tags: plugin, plugin notes, memo, meta, plugins
 Tested up to: 4.2

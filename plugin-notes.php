@@ -6,8 +6,6 @@ Description: Allows you to add notes to plugins. Simple and sweet.
 Author: Mohammad Jangda
 Version: 1.6
 Author URI: http://digitalize.ca/
-Contributor: Chris Dillon
-Contributor URI: http://gapcraft.com/
 Contributor: Juliette Reinders Folmer
 Contributor URI: http://adviesenzo.nl/
 Text Domain: plugin-notes
