@@ -425,13 +425,23 @@ if( !class_exists('plugin_notes')) {
 		/**
 		 * Applies markdown syntax filter to the note string
 		 *
+		 * @internal Extra defensive coding to prevent conflicts if user has Markdown installed as 'normal'
+		 * plugin.
+		 *
 		 * @param		string	$pluginnote
 		 * @return		string	altered string $pluginnote
 		 */
 		function filter_markdown( $pluginnote ) {
-			include_once( dirname(__FILE__) . '/inc/markdown/markdown.php' );
-
-			return Markdown( $pluginnote );
+			if ( ! defined( 'MARKDOWN_PARSER_CLASS' ) ) {
+				include_once( dirname(__FILE__) . '/inc/markdown/markdown.php' );
+			}
+			
+			if ( function_exists( 'Markdown' ) ) {
+				return Markdown( $pluginnote );
+			}
+			else {
+				return $pluginnote;
+			}
 		}
 
 
